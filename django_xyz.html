@@ -1,0 +1,81 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Viewer with SocketIO</title>
+</head>
+<body>
+    <img id="image" alt="Image">
+    <form id="inputForm">
+        <label for="x">X:</label>
+        <input type="number" id="x" name="x" step="any">
+        <br>
+        <label for="y">Y:</label>
+        <input type="number" id="y" name="y" step="any">
+        <br>
+        <label for="z">Z:</label>
+        <input type="number" id="z" name="z" step="any">
+        <br>
+        <input type="button" value="Generate Image" onclick="requestNewImage()">
+        <input type="button" value="Generate Automatic Images" onclick="generateAutomaticImages()">
+    </form>
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        function requestNewImage_for_auto(x, y, z) {
+            socket.emit('request_new_image', {'x': x, 'y': y, 'z': z});
+        }
+        
+        function requestNewImage() {
+            var x = document.getElementById('x').value;
+            var y = document.getElementById('y').value;
+            var z = document.getElementById('z').value;
+
+            socket.emit('request_new_image', {'x': x, 'y': y, 'z': z});
+        }
+
+        function generateAutomaticImages() {
+            var x = 0;
+            var y = 0; // Set y to 0 for simplicity, you can adjust as needed
+            var z = 0;
+    
+            function generateNextImage() {
+                if (x <= 1 && z <= 1) {
+                    requestNewImage_for_auto(x, y, z);
+                }
+            }
+    
+            socket.on('new_image', function(data) {
+                var timestamp = new Date().getTime(); // Generate a timestamp
+                var imageUrl = '{% static "generated_image.png" %}?' + timestamp;
+                document.getElementById('image').src = imageUrl;
+                acknowledgeImageReceived();
+            });
+    
+            function acknowledgeImageReceived() {
+                // Simulate processing time on the client
+                setTimeout(function() {
+                    x += 0.1;
+                    if (x > 1) {
+                        x = 0;
+                        z += 0.1;
+                    }
+    
+                    if (z <= 1) {
+                        generateNextImage();
+                    }
+                }, 0); // Adjust the delay as needed (in milliseconds)
+            }
+    
+            generateNextImage();
+        }
+
+        socket.on('new_image', function(data) {
+            var timestamp = new Date().getTime(); // Generate a timestamp
+            var imageUrl = '{% static "generated_image.png" %}?' + timestamp;
+            document.getElementById('image').src = imageUrl;
+        });
+    </script>
+</body>
+</html>

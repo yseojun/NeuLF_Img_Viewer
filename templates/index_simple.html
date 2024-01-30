@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Viewer with SocketIO</title>
+</head>
+<body>
+	
+	<form id="inputForm">
+		<label for="index">Image Index:</label>
+        <input type="number" id="index" name="index" min="0">
+        <br>
+        <input type="button" value="Request Image" onclick="requestNewImage()">
+    </form>
+	<img id="image" alt="Image">
+	
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+    <script>
+		var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        // 이미지 요청 함수
+        function requestNewImage() {
+            // Get the index value from the input field
+            var index = document.getElementById('index').value;
+            // Send the request with the specified index
+            socket.emit('request_new_image', {'index': index});
+        }
+
+        // 새 이미지가 도착하면 이미지를 갱신합니다.
+        socket.on('new_image', function(data) {
+			console.log(data);
+            document.getElementById('image').src = 'static/' + data.image_file;
+        });
+    </script>
+</body>
+</html>

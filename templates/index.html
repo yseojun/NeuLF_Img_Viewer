@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Viewer with SocketIO</title>
+</head>
+<body>
+    <img id="image" alt="Image">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        // 페이지 로드 시 처음 한 번 이미지를 요청하고 설정합니다.
+        requestNewImage();
+
+        // 일정 간격으로 이미지를 요청합니다.
+        setInterval(requestNewImage, 50);
+
+        // 이미지 요청 함수
+        function requestNewImage() {
+            socket.emit('request_new_image');
+        }
+
+        // 새 이미지가 도착하면 이미지를 갱신합니다.
+        socket.on('new_image', function(data) {
+            document.getElementById('image').src = 'static/' + data.image_file;
+        });
+    </script>
+</body>
+</html>
