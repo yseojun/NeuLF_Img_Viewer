@@ -5,6 +5,7 @@ import torch
 import numpy as np
 import glob
 import argparse #parser
+import time
 
 from src.model import Nerf4D_relu_ps
 from src.utils import rm_folder, rm_folder_keep
@@ -17,11 +18,11 @@ image_folder = "static/image"
 current_image_index = 0
 
 parser = argparse.ArgumentParser() # museum,column2
-# parser.add_argument('--exp_name',type=str, default = '03_9to14_d4_w64',help = 'exp name')
-parser.add_argument('--exp_name',type=str, default = '1108_3_9to14',help = 'exp name')
+parser.add_argument('--exp_name',type=str, default = '03_9to14_d4w64',help = 'exp name')
+# parser.add_argument('--exp_name',type=str, default = '1108_3_9to14',help = 'exp name')
 parser.add_argument('--gpuid',type=str, default = '0',help='data folder name')
-parser.add_argument('--mlp_depth', type=int, default = 8)
-parser.add_argument('--mlp_width', type=int, default = 256)
+parser.add_argument('--mlp_depth', type=int, default = 4)
+parser.add_argument('--mlp_width', type=int, default = 64)
 parser.add_argument('--scale', type=int, default = 4)
 parser.add_argument('--img_form',type=str, default = '.png',help = 'exp name')
 
@@ -138,7 +139,7 @@ def static_file(filename):
 
 @app.route("/")
 def home():
-    return render_template('xyz.html')
+    return render_template('home.html')
 
 @socketio.on('request_new_image')
 def handle_request_new_image(data):
@@ -152,14 +153,17 @@ def handle_request_new_image(data):
     if demo_instance is None:
         args = parser.parse_args()
         demo_instance = demo_rgb(args)
-
-    vec3_xyz = demo_instance.get_vec3_xyz(x, y, z)
+        
     save_path = 'static/generated_image.png'
 
+    start = time.time()
+    vec3_xyz = demo_instance.get_vec3_xyz(x, y, z)
     demo_instance.get_image(vec3_xyz, save_path)
+    end = time.time()
 
     socketio.emit('new_image', {'image_file': 'generated_image.png'})
     print('emit finished')
+    print(f"Time taken: {end - start} seconds")
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host='0.0.0.0', port=6006)

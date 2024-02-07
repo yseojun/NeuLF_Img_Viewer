@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Viewer with SocketIO</title>
+</head>
+<body>
+	<img id="image" alt="Image">
+    <form id="inputForm">
+		<label for="x">X:</label>
+        <input type="number" id="x" name="x" step="any">
+        <br>
+        <label for="y">Y:</label>
+        <input type="number" id="y" name="y" step="any">
+        <br>
+        <label for="z">Z:</label>
+        <input type="number" id="z" name="z" step="any">
+        <br>
+        <input type="button" value="Generate Image" onclick="requestNewImage()">
+		<input type="button" value="Generate Automatic Images" onclick="generateAutomaticImages()">
+    </form>
+	
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+	<script src="{{ url_for('static', filename='socket.js') }}"></script>
+	<script src="{{ url_for('static', filename='image_generate.js') }}"></script>
+</body>
+</html>

@@ -81,6 +81,11 @@ def get_rotaion_matirx(theta):
     ])
     return rotation_matrix.T
 
+def checkRam():
+    process = psutil.Process(os.getpid())
+    total_memory = psutil.virtual_memory()
+    print('현재 프로세스 메모리 사용량:', process.memory_info().rss / (1024 ** 2), "MB")
+    print('전체 시스템 메모리:', total_memory.total / (1024 ** 2), "MB")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name',type=str, default = 'Ollie_d8_w256',help = 'exp name')
@@ -102,8 +107,8 @@ parser.add_argument('--loadcheckpoints', action='store_true', default = False)
 parser.add_argument('--st_depth',type=int, default= 0, help= "st depth")
 parser.add_argument('--uv_depth',type=int, default= 0.0, help= "uv depth")
 parser.add_argument('--rep',type=int, default=1)
-parser.add_argument('--mlp_depth', type=int, default = 4)
-parser.add_argument('--mlp_width', type=int, default = 64)
+parser.add_argument('--mlp_depth', type=int, default = 8)
+parser.add_argument('--mlp_width', type=int, default = 256)
 #imlab
 
 parser.add_argument('--renderpose_only', action='store_true' ,default = False)
@@ -335,8 +340,8 @@ class train():
                     self.gen_rotating_gif_llff_path(f"{save_dir}/video_ani_llff4.gif",mode = 4)
                     self.gen_rotating_gif_llff_path(f"{save_dir}/video_ani_llff5.gif",mode = 5)
                     self.gen_rotating_gif_llff_path(f"{save_dir}/video_ani_llff6.gif",mode = 6)
-                    # if(epoch != 0):
-                    #     self.val(epoch)
+                    if (epoch != 0):
+                        self.val(epoch)
 
                 if epoch % args.save_checkpoints == 0:
                     cpt_path = self.checkpoints + f"nelf-{epoch}.pth"

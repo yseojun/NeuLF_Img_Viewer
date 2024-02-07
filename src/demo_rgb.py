@@ -34,6 +34,7 @@ parser = argparse.ArgumentParser() # museum,column2
 parser.add_argument('--exp_name',type=str, default = 'Ollie_d8_w256',help = 'exp name')
 parser.add_argument('--gpuid',type=str, default = '0',help='data folder name')
 parser.add_argument('--mlp_depth', type=int, default = 8)
+parser.add_argument('--mlp_width', type=int, default = 256)
 parser.add_argument('--scale', type=int, default = 4)
 parser.add_argument('--img_form',type=str, default = '.png',help = 'exp name')
 
@@ -43,7 +44,7 @@ class demo_rgb():
         print('>>> Using GPU: {}'.format(args.gpuid))
 
         # data_root
-        self.model = Nerf4D_relu_ps(D=args.mlp_depth,depth_branch=False)
+        self.model = Nerf4D_relu_ps(D=args.mlp_depth,W=args.mlp_width,depth_branch=False)
        
 
         self.exp = 'Exp_'+args.exp_name

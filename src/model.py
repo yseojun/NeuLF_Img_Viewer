@@ -32,10 +32,10 @@ class Nerf4D_relu_ps(nn.Module):
     def __init__(self, D=8, W=256, input_ch=256, output_ch=4, skips=[4,8,12,16,20],depth_branch=False):
         """ 
         """
-        print("new model 1031!!!!!!!!!!!!!!")
         super(Nerf4D_relu_ps, self).__init__()
         self.D = D
         self.W = W
+        input_ch = W
         self.input_ch = input_ch
         self.input_ch_views = input_ch
         self.skips = np.arange(4, D, 4)
@@ -70,6 +70,7 @@ class Nerf4D_relu_ps(nn.Module):
             [nn.Linear(input_ch, W)] + [nn.Linear(W, W) if i not in self.skips else nn.Linear(W + input_ch, W) for i in range(D-1)])
         self.rgb_linear = nn.Linear(W, 3)
         self.rgb_act   = nn.Sigmoid()
+        print('>>> Model depth: {}, width: {}, input_ch: {}, output_ch: {}'.format(D, W, input_ch, output_ch))
 
     def forward(self, x):
         input_pts = self.input_net(x)
