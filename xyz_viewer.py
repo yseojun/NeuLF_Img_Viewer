@@ -152,6 +152,7 @@ def handle_request_new_image(data):
     # print(x, y, z)
     if demo_instance is None:
         args = parser.parse_args()
+        socketio.emit('size', {'depth': args.mlp_depth, 'width': args.mlp_width})
         demo_instance = demo_rgb(args)
         
     save_path = 'static/generated_image.png'
@@ -161,7 +162,7 @@ def handle_request_new_image(data):
     demo_instance.get_image(vec3_xyz, save_path)
     end = time.time()
 
-    socketio.emit('new_image', {'image_file': 'generated_image.png'})
+    socketio.emit('new_image', {'image_file': 'generated_image.png', 'time' : end - start})
     print('emit finished')
     print(f"Time taken: {end - start} seconds")
 
