@@ -8,9 +8,6 @@ function updateImage(data) {
     var timestamp = new Date().getTime();
     var imageUrl = 'static/' + data.image_file + '?' + timestamp;
     document.getElementById('image').src = imageUrl;
-    document.getElementById('depth').textContent = data.depth;
-    document.getElementById('width').textContent = data.width;
-    document.getElementById('time_val').textContent = data.time_val;
 }
 
 // 자동 이미지 생성 함수 정의

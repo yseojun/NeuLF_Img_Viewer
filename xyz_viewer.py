@@ -161,10 +161,10 @@ def handle_request_new_image(data):
     vec3_xyz = demo_instance.get_vec3_xyz(x, y, z)
     demo_instance.get_image(vec3_xyz, save_path)
     end = time.time()
-
-    socketio.emit('new_image', {'image_file': 'generated_image.png', 'time' : end - start})
+    time_val = str(end - start)
+    socketio.emit('new_image', {'image_file': 'generated_image.png', 'time' : time_val})
     print('emit finished')
-    print(f"Time taken: {end - start} seconds")
+    print(f"Time taken: " + time_val + " seconds")
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host='0.0.0.0', port=6006)

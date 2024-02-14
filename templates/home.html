@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/nomalize.css') }}">
-    <link rel="stylesheet" href="../static/css/normalize.css">
-    <link rel="stylesheet" href="../static/css/main.css"> 
+    <!-- <link rel="stylesheet" href="../static/css/nomalize.css">
+    <link rel="stylesheet" href="../static/css/main.css">  -->
     <title>Image Viewer</title>
 </head>
 <body>
@@ -28,10 +28,9 @@
                     <input type="number" id="z" name="z" step="any" value="0">
                 </div>
             </form>
-            <h4>Depth : {{ depth }} </h4>
-            <h4>Width : {{width }} </h4>
-            <h4>Time : {{time_val}} </h4>
-        </div>
+            <h4>Depth : <span id="depth"> - </span></h4>
+            <h4>Width : <span id="width"> - </span></h4>
+            <h4>Gen Time : <span id="time_val"> - </span></h4>
             
         <div class="main-image">
             <img class="main-image" id="image" alt="Image" src="../static/generated_image.png">
