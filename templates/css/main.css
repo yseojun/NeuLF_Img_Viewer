@@ -1,17 +1,59 @@
-input {
-    padding: 10px;
-    font-size: 20px;
+input[type="number"] {
+    padding: 3px;
+    font-size: 15px;
     border: 1px solid black;
     border-radius: 5px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width:50%;
+    box-sizing: border-box;
 }
 
+input[type="button"]{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width:80%;
+    padding: 2px;
+    box-sizing: border-box;
+}
 
-.main-left {
-    width: 20%;
+.main {
+    width: 100%;
+}
+
+.main-form {
+    display: block;
+    margin-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 15%;
     float: left;
 }
+
 
 .main-image {
-    width: 80%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 85%;
+    max-width: 780px;
     float: left;
+}
+
+.input-box {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.input-box lable{
+    flex: 0 0 30%;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.input-box input[type=number] {
+    flex: 0 0 70%;
 }
