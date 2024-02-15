@@ -50,18 +50,12 @@ class demo_rgb():
         self.exp = 'Exp_'+args.exp_name
         self.checkpoints = 'result/'+self.exp+'/checkpoints/'
 
-        self.img_folder_test = 'demo_result_rgb/'+self.exp+'/'
         rm_folder_keep(self.img_folder_test)
 
 
-        path = self.img_folder_test+'test.png'
-        print(path)
         self.load_check_points()
         self.model = self.model.cuda()
-
-        vec3_xyz = self.get_vec3_xyz(0,0,0)
-
-        self.get_image(vec3_xyz,path)
+        print('demo_rgb constructed')
 
         
     
