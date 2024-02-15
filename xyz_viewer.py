@@ -15,6 +15,7 @@ app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 image_folder = "static/image"
+time_array = []
 current_image_index = 0
 
 parser = argparse.ArgumentParser() # museum,column2
@@ -161,10 +162,10 @@ def handle_request_new_image(data):
     vec3_xyz = demo_instance.get_vec3_xyz(x, y, z)
     demo_instance.get_image(vec3_xyz, save_path)
     end = time.time()
-    time_val = str(end - start)
-    socketio.emit('new_image', {'image_file': 'generated_image.png', 'time' : time_val})
-    print('emit finished')
-    print(f"Time taken: " + time_val + " seconds")
+    time_val = end - start
+    time_array.append(time_val)
+    socketio.emit('new_image', {'image_file': 'generated_image.png', 'time' : time_val, 'avg_time' : np.mean(time_array)})
+    # print('emit finished')
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host='0.0.0.0', port=6006)
