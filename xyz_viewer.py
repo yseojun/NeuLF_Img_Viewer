@@ -17,9 +17,11 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 image_folder = "static/image"
 time_array = []
 current_image_index = 0
+theta = np.pi
+theta_x, theta_y, theta_z = 0, 0, 0
 
 parser = argparse.ArgumentParser() # museum,column2
-parser.add_argument('--exp_name',type=str, default = '03_9to14_d4w64',help = 'exp name')
+parser.add_argument('--exp_name',type=str, default = '03_9to14_d4w64_e120',help = 'exp name')
 # parser.add_argument('--exp_name',type=str, default = '1108_3_9to14',help = 'exp name')
 parser.add_argument('--gpuid',type=str, default = '0',help='data folder name')
 parser.add_argument('--mlp_depth', type=int, default = 4)
@@ -47,7 +49,7 @@ class demo_rgb():
         self.model = self.model.cuda()
 
 
-        vec3_xyz = self.get_vec3_xyz(0,0,0)
+        vec3_xyz = self.get_vec3_xyz(0,0,0,0,0)
 
         self.get_image(vec3_xyz,path)
 
@@ -66,32 +68,35 @@ class demo_rgb():
         self.model.load_state_dict(ckpt)
         
 
-    def get_vec3_xyz(self,x,y,z,H=720,W=720):
-        aspect = W/H
+    def get_vec3_xyz(self,x,y,z,dx,dy,H=360,W=360):
+        global theta_x, theta_y, theta_z, theta
+        
+        if dx != 0:
+            theta_x -= dx * 0.01
 
-        theta = np.pi  # 180 degrees in radians
-        #theta = 0
+        if dy != 0:
+            theta_y -= dy * 0.01
+        
+        aspect = W/H
+        
         rot_mat = np.array([
             [-1,  0,           0],
             [ 0,  np.cos(theta), -np.sin(theta)],
             [ 0,  np.sin(theta),  np.cos(theta)]
         ])
 
-
         rot_x = np.array([
             [1, 0, 0],
-            [0, np.cos(theta), -np.sin(theta)],
-            [0, np.sin(theta), np.cos(theta)]
+            [0, np.cos(theta_y), -np.sin(theta_y)],
+            [0, np.sin(theta_y), np.cos(theta_y)]
         ])
 
-        # y축 회전 행렬
         rot_y = np.array([
-            [np.cos(theta), 0, np.sin(theta)],
+            [np.cos(theta_x), 0, np.sin(theta_x)],
             [0, 1, 0],
-            [-np.sin(theta), 0, np.cos(theta)]
+            [-np.sin(theta_x), 0, np.cos(theta_x)]
         ])
 
-        # z축 회전 행렬
         rot_z = np.array([
             [np.cos(theta), -np.sin(theta), 0],
             [np.sin(theta), np.cos(theta), 0],
@@ -107,6 +112,8 @@ class demo_rgb():
         u = vu[0]
         v = vu[1]
         dirs = np.stack((u, v, -np.ones_like(u)), axis=-1)
+        dirs = np.sum(dirs[..., np.newaxis, :]* rot_x[:3,:3],-1)
+        dirs = np.sum(dirs[..., np.newaxis, :]* rot_y[:3,:3],-1)
         dirs = np.sum(dirs[..., np.newaxis, :]* rot_z[:3,:3],-1)
         dirs = np.reshape(dirs,(-1,3))
 
@@ -125,7 +132,7 @@ class demo_rgb():
 
         vec3_xyz = torch.from_numpy(vec3_xyz.astype(np.float32)).cuda()
         pred_color = self.model(vec3_xyz)
-        pred_img = pred_color.reshape((720,720,3)).permute((2,0,1))
+        pred_img = pred_color.reshape((360,360,3)).permute((2,0,1))
         torchvision.utils.save_image(pred_img, save_path)
 
 demo_instance = None  # Initialize demo instance
@@ -149,8 +156,9 @@ def handle_request_new_image(data):
     x = float(data.get('x', 0))
     y = float(data.get('y', 0))
     z = float(data.get('z', 0))
+    dx = float(data.get('dx', 0))
+    dy = float(data.get('dy', 0))
 
-    # print(x, y, z)
     if demo_instance is None:
         args = parser.parse_args()
         socketio.emit('size', {'depth': args.mlp_depth, 'width': args.mlp_width})
@@ -159,7 +167,7 @@ def handle_request_new_image(data):
     save_path = 'static/generated_image.png'
 
     start = time.time()
-    vec3_xyz = demo_instance.get_vec3_xyz(x, y, z)
+    vec3_xyz = demo_instance.get_vec3_xyz(x, y, z, dx, dy)
     demo_instance.get_image(vec3_xyz, save_path)
     end = time.time()
     time_val = end - start
