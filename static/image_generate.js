@@ -1,9 +1,11 @@
 var isRequestingImage = false;
+var pendingRequest = false;
+var mouseMoveEnabled = false;
 
 var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-socket.on('new_image', function(data) {
-    updateImage(data);
+socket.on('new_image', async function(data) {
+    await updateImage(data);
 });
 
 socket.on('size' , function(data) {
@@ -13,19 +15,20 @@ socket.on('size' , function(data) {
 
 // requestNewImage 함수 정의
 function requestNewImage(x, y, z, dx, dy) {
-    if (isRequestingImage === false) {
-        isRequestingImage = true;
-        socket.emit('request_new_image', {'x': x, 'y': y, 'z': z, 'dx': dx, 'dy': dy});
+    if (pendingRequest === true) {
+        return;
     }
+    pendingRequest = true;
+    socket.emit('request_new_image', {'x': x, 'y': y, 'z': z, 'dx': dx, 'dy': dy}, function() { pendingRequest = false; });
 }
 
 // 이미지 업데이트 함수 정의
-function updateImage(data) {
+async function updateImage(data) {
     var timestamp = new Date().getTime();
     var imageUrl = 'static/' + data.image_file + '?' + timestamp;
     document.getElementById('image').src = imageUrl;
-    isRequestingImage = false;
     updateImageStats(data.time, data.avg_time);
+    isRequestingImage = false;
 }
 
 function updateImageStats(time, avgTime) {
@@ -54,10 +57,10 @@ function generateAutomaticImages() {
     // 이미지 처리 완료 후 다음 이미지 생성 함수
     function acknowledgeImageReceived() {
         setTimeout(function() {
-            x += 0.05;
+            x += 0.01;
             if (x > 1) {
                 x = 0;
-                z += 0.05;
+                z += 0.01;
             }
 
             if (z <= 1) {
@@ -71,7 +74,7 @@ function generateAutomaticImages() {
 }
 
 document.addEventListener('keydown', function(event) {
-    if (isRequestingImage === true) {
+    if (isRequestingImage === true || pendingRequest === true) {
         return;
     }
     var key = event.key;
@@ -98,22 +101,42 @@ document.addEventListener('keydown', function(event) {
     document.getElementById('x').value = x;
     document.getElementById('z').value = z;
 
+    isRequestingImage = true;
     requestNewImage(x, 0, z, 0, 0);
 });
 
-document.addEventListener('mousemove', function(event) {
-    if (isRequestingImage === true) {
+function handleMouseMove(event) {
+    if (isRequestingImage === true || pendingRequest === true) {
         return;
     }
-    // 마우스의 움직임을 기반으로 dx와 dy를 계산
+    isRequestingImage = true;
+    var mouseCursor = document.getElementById('mouse-cursor');
+
     var dx = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
     var dy = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+    
+    mouseCursor.style.left = event.clientX + 'px';
+    mouseCursor.style.top = event.clientY + 'px';
 
-    // 현재 x, y, z 좌표 가져오기
     var x = parseFloat(document.getElementById('x').value);
-    var y = 0; // 마우스 이동과는 관련이 없으므로 고정값 사용
+    var y = 0;
     var z = parseFloat(document.getElementById('z').value);
-
-    // 새로운 이미지 요청
+    
     requestNewImage(x, 0, z, dx, dy);
-});
+};
+
+function handleImageClick() {
+    if (!mouseMoveEnabled) {
+        mouseMoveEnabled = true;
+        document.getElementById('mouse-cursor').style.display = 'block'; // 가상 마우스 커서 표시
+        document.addEventListener('mousemove', handleMouseMove);
+        document.getElementById('image-container').style.cursor = 'none'; // 실제 마우스 포인터 숨기기
+        console.log('Mouse move enabled');
+    } else {
+        mouseMoveEnabled = false;
+        document.getElementById('mouse-cursor').style.display = 'none'; // 가상 마우스 커서 표시
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.getElementById('image-container').style.cursor = 'auto'; // 실제 마우스 포인터 숨기기
+        console.log('Mouse move disabled');
+    }
+};

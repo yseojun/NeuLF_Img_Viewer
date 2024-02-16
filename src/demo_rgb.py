@@ -50,9 +50,6 @@ class demo_rgb():
         self.exp = 'Exp_'+args.exp_name
         self.checkpoints = 'result/'+self.exp+'/checkpoints/'
 
-        rm_folder_keep(self.img_folder_test)
-
-
         self.load_check_points()
         self.model = self.model.cuda()
         print('demo_rgb constructed')

@@ -36,13 +36,15 @@
             <h4>Avg Time : <span id="avg_time"> - </span></h4>
         </div>
             
-        <div class="main-image">
-            <img class="main-image" id="image" alt="Image" src="../static/generated_image.png">
+        <div class="main-image" id="image-container">
+            <img class="main-image" id="image" alt="Image" src="../static/generated_image.png" onclick="handleImageClick()">
+            <div class="mouse-cursor" id="mouse-cursor"></div>
         </div>
     </div>
     
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="{{ url_for('static', filename='socket.js') }}"></script>
     <script src="{{ url_for('static', filename='image_generate.js') }}"></script>
 </body>

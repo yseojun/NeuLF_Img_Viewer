@@ -38,7 +38,6 @@ input[type="button"] {
     margin-left: auto;
     margin-right: auto;
     width: 80%;
-    max-width: 780px;
     float: left;
 }
 
@@ -56,4 +55,20 @@ input[type="button"] {
 
 .input-box input[type=number] {
     flex: 0 0 70%;
+}
+
+.mouse_cursor {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    top: 50%; /* 가운데 정렬 */
+    left: 50%; /* 가운데 정렬 */
+    background-color: transparent;
+    pointer-events: none; /* 이 요소는 마우스 이벤트를 받지 않음 */
+    z-index: 999; /* 이미지 위에 배치 */
+    display: none;
+}
+
+.image-contatiner {
+    cursor: auto;
 }
